@@ -12,7 +12,7 @@ FPS=24
 PESQ_AUDIO_SAMPLE_RATE=16000
 VIDEO_BITRATE=3M
 JPG_FOLDER=jpg
-FFMPEG_LOG="-loglevel error"
+FFMPEG_LOG="-loglevel debug"
 P_SUFFIX="-p.jpg"
 V_SUFFIX="-v.jpg"
 VIDEO_LENGTH_SEC=30
@@ -23,6 +23,8 @@ CLEANUP=true
 ALIGN_OCR=false
 ONLY_VMAF=false
 USAGE="Usage: `basename $0` [-p=prefix] [-w=width] [-h=height] [--calculate_audio_qoe] [--no_cleanup] [--clean] [-vr=video_ref] [-ar=audio_ref] [--align_ocr] [--use_default_ref] [--only_vmaf]"
+#VMAF_PATH=../../vmaf/python
+VMAF_PATH=../../vmaf/python/vmaf/script
 
 ##################################################################################
 # FUNCTIONS
@@ -130,7 +132,8 @@ get_rgb() {
    width=$2
    height=$3
 
-   retval=$(convert $image -format "%[pixel:u.p{$width,$height}]" -colorspace rgb info:)
+   #retval=$(convert $image -format "%[pixel:u.p{$width,$height}]" -colorspace rgb info:)
+   retval=$(convert $image -format "%[pixel:u.p{$width,$height}]" info:)
 }
 
 match_threshold() {
@@ -347,7 +350,8 @@ align_ocr() {
    rm -f $JPG_FOLDER/*.jpg
    rm -f $cut_folder/*.jpg
 
-   ffmpeg $FFMPEG_LOG -i $video_ocr -qscale:v 2 $JPG_FOLDER/%04d.jpg
+   #ffmpeg $FFMPEG_LOG -i $video_ocr -qscale:v 2 $JPG_FOLDER/%04d.jpg
+   ffmpeg $FFMPEG_LOG -i $video_ocr -q:v 2 $JPG_FOLDER/%04d.jpg
 
    next=$(($VIDEO_LENGTH_SEC * $FPS))
    skipped=0
@@ -374,6 +378,7 @@ align_ocr() {
          j=$frame
          while [ $j -le $next ];do
             output=$(printf "%04d\n" $j)
+            #echo "Copying from: $f"
             cp $f $cut_folder/${output}.jpg
             if [ $j -ne $next ]; then
                skipped=$(($skipped+1))
@@ -389,6 +394,7 @@ align_ocr() {
    i=1
    while [ $i -le $next ]; do
       output=$(printf "%04d\n" $i)
+      #echo "Copying from: $f"
       cp $f $cut_folder/${output}.jpg
       i=$(($i+1))
    done
@@ -410,6 +416,12 @@ align_ocr() {
 
 for i in "$@"; do
    case $i in
+      --bbb)
+      WIDTH=1920
+      HEIGHT=1080
+      FPS=60
+      shift
+      ;;
       --only_vmaf)
       ONLY_VMAF=true
       shift
@@ -475,14 +487,14 @@ echo "*** Calculating QoE metrics ***"
 ######################################
 # 1. Check VMAF and VQMT path and init
 ######################################
-if [ -z "$VMAF_PATH" ]; then
-   echo "You need to provide the path to VMAF binaries (check out from https://github.com/Netflix/vmaf) in the environmental variable VMAF_PATH"
-   exit 1
-fi
-if [ -z "$VQMT_PATH" ]; then
-   echo "You need to provide the path to VQMT binaries (check out from https://github.com/Rolinh/VQMT) in the environmental variable VQMT_PATH"
-   exit 1
-fi
+#if [ -z "$VMAF_PATH" ]; then
+#   echo "You need to provide the path to VMAF binaries (check out from https://github.com/Netflix/vmaf) in the environmental variable VMAF_PATH"
+#   exit 1
+#fi
+#if [ -z "$VQMT_PATH" ]; then
+#   echo "You need to provide the path to VQMT binaries (check out from https://github.com/Rolinh/VQMT) in the environmental variable VQMT_PATH"
+#   exit 1
+#fi
 init
 
 #####################################
@@ -561,7 +573,8 @@ if [ ! -z "$VIDEO_REF" ]; then
 fi
 
 echo "Calculating VMAF"
-$VMAF_PATH/run_vmaf yuv420p $WIDTH $HEIGHT $PWD/$REF $PWD/$YUV_VIEWER --out-fmt json > $PWD/${PREFIX}_vmaf.json && cat $PWD/${PREFIX}_vmaf.json | jq '.frames[].VMAF_score' > $PWD/${PREFIX}_vmaf.csv
+#$VMAF_PATH/run_vmaf yuv420p $WIDTH $HEIGHT $PWD/$REF $PWD/$YUV_VIEWER --out-fmt json > $PWD/${PREFIX}_vmaf.json && cat $PWD/${PREFIX}_vmaf.json | jq '.frames[].VMAF_score' > $PWD/${PREFIX}_vmaf.csv
+python3 $VMAF_PATH/run_vmaf.py yuv420p $WIDTH $HEIGHT $PWD/$REF $PWD/$YUV_VIEWER --out-fmt json > $PWD/../score/${PREFIX}_vmaf_1.json
 
 if ! $ONLY_VMAF; then
     echo "Calculating VIFp, SSIM, MS-SSIM, PSNR, PSNR-HVS, and PSNR-HVS-M"

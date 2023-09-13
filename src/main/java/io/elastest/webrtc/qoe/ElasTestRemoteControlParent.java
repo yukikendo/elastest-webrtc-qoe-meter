@@ -51,14 +51,19 @@ import com.spotify.docker.client.exceptions.DockerException;
 
 import io.github.bonigarcia.seljup.SeleniumExtension;
 
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+
 public class ElasTestRemoteControlParent {
 
     final Logger log = getLogger(lookup().lookupClass());
 
     public static final String FAKE_DEVICE = "--use-fake-device-for-media-stream";
     public static final String FAKE_UI = "--use-fake-ui-for-media-stream";
-    public static final String FAKE_VIDEO = "--use-file-for-fake-video-capture=test.y4m";
-    public static final String FAKE_AUDIO = "--use-file-for-fake-audio-capture=test.wav";
+    public static final String FAKE_VIDEO = "--use-file-for-fake-video-capture=/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/test.y4m";
+    public static final String FAKE_AUDIO = "--use-file-for-fake-audio-capture=/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/test.wav";
     public static final String IGNORE_CERTIFICATE = "--ignore-certificate-errors";
     public static final String DISABLE_SMOOTHNESS = "--disable-rtc-smoothness-algorithm";
 
@@ -126,7 +131,7 @@ public class ElasTestRemoteControlParent {
     private void injectRecordRtc(WebDriver driver) {
         String recordingJs = "var recScript=window.document.createElement('script');";
         recordingJs += "recScript.type='text/javascript';";
-        recordingJs += "recScript.src='https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.5.8/RecordRTC.js';";
+        recordingJs += "recScript.src='https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.js';";
         recordingJs += "window.document.head.appendChild(recScript);";
         recordingJs += "return true;";
         this.executeScript(driver, recordingJs);
@@ -178,6 +183,35 @@ public class ElasTestRemoteControlParent {
     public void stopRecording(WebDriver driver) {
         executeScript(driver, REMOTE_CONTROL_JS_OBJECT + ".stopRecording();");
         getProperty(driver, "recordRTC");
+    }
+
+    public void getStats(WebDriver driver, String name) {
+        executeScript(driver, REMOTE_CONTROL_JS_OBJECT + ".getStats('"+name+"');");
+        log.debug("getstats()");
+    }
+
+    public void moveStatsFile(String src_file, String dst_dir, String filename, String prefix) {
+        Path sourcePath = Paths.get("/home/tsukumo-ubuntu/Downloads/" + src_file + ".json");
+        Path destinationPath = Paths.get("/home/tsukumo-ubuntu/workspace/elastest-webrtc-qoe-meter/stats/" + dst_dir + "/"+ filename + prefix + "_1.json");
+        // try{
+        //     Files.move(p1, p2, StandardCopyOption.REPLACE_EXISTING);
+        // }catch(IOException e){
+        //     System.out.println(e);
+        // }
+        int count = 1;
+        Path newDestinationPath = destinationPath;
+        while (Files.exists(newDestinationPath)) {
+            String newFileName = filename + prefix +"_"+ count + ".json";
+            newDestinationPath = destinationPath.resolveSibling(newFileName);
+            count++;
+        }
+        try {
+            System.out.println("Copying file...");
+            Files.move(sourcePath, newDestinationPath);
+            System.out.println("File copied successfully to: " + newDestinationPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public File saveRecordingToDisk(WebDriver driver, String fileName,

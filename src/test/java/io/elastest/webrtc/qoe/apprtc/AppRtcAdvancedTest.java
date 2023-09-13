@@ -46,7 +46,7 @@ public class AppRtcAdvancedTest extends ElasTestRemoteControlParent {
 
     static final String FAKE_VIDEO = "--use-file-for-fake-video-capture=/home/selenium/test.y4m";
     static final String FAKE_AUDIO = "--use-file-for-fake-audio-capture=/home/selenium/test.wav";
-    static final String SUT_URL = "https://appr.tc/?stereo=true&audio=echoCancellation=false";
+    static final String SUT_URL = "https://localhost/?wshpp=localhost:8089&wstls=true";
     static final String PRESENTER_NAME = "presenter";
     static final String VIEWER_NAME = "viewer";
     static final String SESSION_NAME = randomUUID().toString();
@@ -60,10 +60,10 @@ public class AppRtcAdvancedTest extends ElasTestRemoteControlParent {
 
     WebDriver presenter, viewer;
 
-    public AppRtcAdvancedTest(@Arguments({ FAKE_DEVICE, FAKE_UI, FAKE_VIDEO,
-            FAKE_AUDIO }) @DockerBrowser(type = CHROME, version = "beta", volumes = {
-                    ".:/home/selenium" }) WebDriver presenter,
-            @Arguments({ FAKE_DEVICE, FAKE_UI }) ChromeDriver viewer) {
+    public AppRtcAdvancedTest(
+        @Arguments({ FAKE_DEVICE, FAKE_UI, FAKE_VIDEO,FAKE_AUDIO })
+        @DockerBrowser(type = CHROME, version = "beta", volumes = {".:/home/selenium" }) WebDriver presenter,
+        @Arguments({ FAKE_DEVICE, FAKE_UI }) ChromeDriver viewer) {
         super(SUT_URL, presenter, viewer);
         this.presenter = presenter;
         this.viewer = viewer;

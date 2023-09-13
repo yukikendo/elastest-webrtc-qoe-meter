@@ -45,6 +45,13 @@ for i in "$@"; do
       HEIGHT=720
       shift
       ;;
+      --bbb)
+      VIDEO_SAMPLE_URL=https://ia800307.us.archive.org/28/items/BigBuckBunnyFULLHD60FPS/Big%20Buck%20Bunny%20-%20FULL%20HD%2060FPS.mp4
+      WIDTH=1920
+      HEIGHT=1080
+      FPS=60
+      shift
+      ;;
       --generate_default_ref)
       GENERATE_DEFAULT_REF=true
       shift

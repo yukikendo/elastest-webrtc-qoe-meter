@@ -22,37 +22,38 @@ ElasTestRemoteControl.prototype.startRecording = function(stream) {
 	var options = {
 		type : "video",
 		mimeType : "video/webm",
-		frameRate : 24,
+		// frameRate : 60,
+		// bitsPerSecond: 9000000,
 		numberOfAudioChannels : 2,
-		sampleRate : 48000
+		sampleRate : 48000,
 	};
 	this.recordRTC = RecordRTC(stream, options);
 	this.recordRTC.startRecording();
 }
 
-ElasTestRemoteControl.prototype.stopRecording = function() {
+ElasTestRemoteControl.prototype.stopRecording = function () {
 	if (!this.recordRTC) {
 		console.warn("No recording found.");
 	} else {
 		if (this.recordRTC.length) {
-			this.recordRTC[0].stopRecording(function(url) {
+			this.recordRTC[0].stopRecording(function (url) {
 				if (!this.recordRTC[1]) {
 					console.info("[0] Recorded track: " + url);
 					return;
 				}
-				this.recordRTC[1].stopRecording(function(url) {
+				this.recordRTC[1].stopRecording(function (url) {
 					console.info("[1] Recorded track: " + url);
 				});
 			});
 		} else {
-			this.recordRTC.stopRecording(function(url) {
+			this.recordRTC.stopRecording(function (url) {
 				console.info("Recorded track: " + url);
 			});
 		}
 	}
 }
 
-ElasTestRemoteControl.prototype.saveRecordingToDisk = function(fileName) {
+ElasTestRemoteControl.prototype.saveRecordingToDisk = function (fileName) {
 	if (!this.recordRTC) {
 		console.warn("No recording found.");
 	} else {
@@ -61,7 +62,7 @@ ElasTestRemoteControl.prototype.saveRecordingToDisk = function(fileName) {
 	}
 }
 
-ElasTestRemoteControl.prototype.openRecordingInNewTab = function() {
+ElasTestRemoteControl.prototype.openRecordingInNewTab = function () {
 	if (!this.recordRTC) {
 		console.warn("No recording found.");
 	} else {
@@ -69,7 +70,7 @@ ElasTestRemoteControl.prototype.openRecordingInNewTab = function() {
 	}
 }
 
-ElasTestRemoteControl.prototype.recordingToData = function() {
+ElasTestRemoteControl.prototype.recordingToData = function () {
 	var self = this;
 	if (!self.recordRTC) {
 		console.warn("No recording found.");
@@ -77,9 +78,48 @@ ElasTestRemoteControl.prototype.recordingToData = function() {
 		var blob = self.recordRTC.getBlob();
 		var reader = new window.FileReader();
 		reader.readAsDataURL(blob);
-		reader.onloadend = function() {
+		reader.onloadend = function () {
 			self.recordingData = reader.result;
 		}
+	}
+}
+
+ElasTestRemoteControl.prototype.getStats = function (name) {
+	var stats_report = {}
+	var num = 0;
+	if (!peerConnections) {
+		console.warn("No peerConnections found.");
+	} else {
+		console.info("peerConnections found");
+		const timer = setInterval(() => {
+			let stats_all = {}
+			// producerが動画本体を流している間の統計
+			if (num >= 9 && num <= 20) {
+				peerConnections[0].getStats(null).then((stats) => {
+					stats.forEach((report) => {
+						let type = report.type;
+						stats_all[type] = report;
+					})
+				})
+				stats_report[++num] = stats_all;
+				console.info(stats_report)
+				if (num == 21) {
+					//download json
+					clearInterval(timer);
+					console.info("num = " + num);
+					const filename = "stats_"+name+".json";
+					const data = JSON.stringify(stats_report, null, "\t");
+					const link = document.createElement("a");
+					link.href = "data:," + encodeURIComponent(data);
+					link.download = filename;
+					link.click();
+					//このあとはjava側でファイルのリネームと移動をやる
+				}
+			} else {
+				++num;
+			}
+		}, 1000);
+		console.info("finish");
 	}
 }
 
@@ -88,7 +128,7 @@ ElasTestRemoteControl.prototype.recordingToData = function() {
  */
 var peerConnections = [];
 var origPeerConnection = window.RTCPeerConnection;
-window.RTCPeerConnection = function(pcConfig, pcConstraints) {
+window.RTCPeerConnection = function (pcConfig, pcConstraints) {
 	var pc = new origPeerConnection(pcConfig, pcConstraints);
 	peerConnections.push(pc);
 	return pc;
