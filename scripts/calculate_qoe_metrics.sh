@@ -416,6 +416,11 @@ align_ocr() {
 
 for i in "$@"; do
    case $i in
+      --game)
+      WIDTH=1280
+      HEIGHT=720
+      shift
+      ;;
       --bbb)
       WIDTH=1920
       HEIGHT=1080

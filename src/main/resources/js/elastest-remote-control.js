@@ -94,7 +94,7 @@ ElasTestRemoteControl.prototype.getStats = function (name) {
 		const timer = setInterval(() => {
 			let stats_all = {}
 			// producerが動画本体を流している間の統計
-			if (num >= 9 && num <= 20) {
+			if (num >= 5 && num <= 35) {
 				peerConnections[0].getStats(null).then((stats) => {
 					stats.forEach((report) => {
 						let type = report.type;

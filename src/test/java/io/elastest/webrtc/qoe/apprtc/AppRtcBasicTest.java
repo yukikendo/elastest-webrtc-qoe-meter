@@ -54,19 +54,19 @@ public class AppRtcBasicTest extends ElasTestRemoteControlParent {
     static final String SESSION_NAME = randomUUID().toString(); 
 
     //network config
-    // String loss = "0%";
-    // String rate = "1Mbps";
-    // String jitter = "";
-    // //encode bitrate
-    // String bitrate = "9000000";
+    String loss = "40%";
+    String rate = "1Mbps";
+    String jitter = "";
+    //encode bitrate
+    String bitrate = "9000000";
 
-    // String[] file_string = FAKE_VIDEO.split("/");
-    // String file_name = file_string[7].substring(0,file_string[7].lastIndexOf(".")) + "-" + loss + "-" + rate; //+ "-" + rate + "-" + jitter;
-    // String stream = "bigbuckbunny";
-    // String framerate = "30fps";
-    // String resolution = "720p";
-    // String dst_dir = resolution + "/" + framerate;
-    // String stats_file = stream;
+    String[] file_string = FAKE_VIDEO.split("/");
+    String file_name = file_string[file_string.length - 1].substring(0,file_string[file_string.length - 1].lastIndexOf(".")) + "-" + loss + "-" + rate; //+ "-" + rate + "-" + jitter;
+    String stream = "interview";
+    String framerate = "24fps";
+    String resolution = "480p";
+    String dst_dir = resolution + "/" + framerate;
+    String stats_file = stream;
 
     ChromeDriver presenter;
     ChromeDriver viewer;
@@ -90,8 +90,8 @@ public class AppRtcBasicTest extends ElasTestRemoteControlParent {
         viewer.findElement(By.id("join-button")).click();
 
         // 統計情報の収集
-        // getStats(presenter,"presenter");
-        // getStats(viewer,"viewer");
+        getStats(presenter,"presenter");
+        getStats(viewer,"viewer");
         
         // presenter側で統計情報を見る用
         executeScript(presenter,"window.open()");
@@ -105,27 +105,30 @@ public class AppRtcBasicTest extends ElasTestRemoteControlParent {
         startRecording(viewer, "peerConnections[0].getRemoteStreams()[0]");
 
         // tc用の受信側ポートの取得
-        // JavascriptExecutor jsExecutor = (JavascriptExecutor) presenter;
-        // String script = "const pc = window.peerConnections[0];" +
-        //                 "const stats = await pc.getStats();" +
-        //                 "var port;" +
-        //                 "stats.forEach((report) => { if (report.type === 'remote-candidate') { port = report.port } });" +
-        //                 "return port;" ;
-        // int port = (int)(long)jsExecutor.executeScript(script);
-        // log.debug("port {}",port);
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) presenter;
+        String script = "const pc = window.peerConnections[0];" +
+                        "const stats = await pc.getStats();" +
+                        "var port;" +
+                        "stats.forEach((report) => { if (report.type === 'remote-candidate') { port = report.port } });" +
+                        "return port;" ;
+        int port = (int)(long)jsExecutor.executeScript(script);
+        log.debug("port {}",port);
 
 
         //setting network 
-        // Runtime.getRuntime().exec("sudo tcset lo --direction incoming --port " + port + " --loss " + loss + " --rate " + rate);// 
-        // log.debug("sudo tcset lo --direction incoming --port " + port + " --loss " + loss  + " --rate " + rate);// 
+        //Runtime.getRuntime().exec("sudo tcset lo --direction incoming --port " + port + " --loss " + loss + " --rate " + rate);// 
+        //log.debug("sudo tcset lo --direction incoming --port " + port + " --loss " + loss  + " --rate " + rate);// 
+        Runtime.getRuntime().exec("sudo tcset lo --direction incoming --port " + port + " --loss " + loss);
+        log.debug("sudo tcset lo --direction incoming --port " + port + " --loss " + loss);
+
 
         // Call time
         log.debug("WebRTC call ({} seconds)", TEST_TIME_SEC);
         waitSeconds(TEST_TIME_SEC);
 
         //remove network setting
-        // Runtime.getRuntime().exec("sudo tcdel lo --all");
-        // log.debug("sudo tcdel lo --all");
+        Runtime.getRuntime().exec("sudo tcdel lo --all");
+        log.debug("sudo tcdel lo --all");
 
         // Stop and get recordings
         stopRecording(presenter);
@@ -140,25 +143,25 @@ public class AppRtcBasicTest extends ElasTestRemoteControlParent {
         assertTrue(recordingViewer.exists());
 
         // 以下、ファイル名をいじって保存する用
-        // String presenterRecordingName = "./media/record/" + file_name + "-presenter.webm";
-        // File recordingPresenter = getRecording(presenter, presenterRecordingName);
-        // assertTrue(recordingPresenter.exists());
-        // String viewerRecordingName = "./media/record/" + file_name + "-viewer.webm";
-        // File recordingViewer = getRecording(viewer, viewerRecordingName);
-        // assertTrue(recordingViewer.exists());
-        // if (!loss.isEmpty()) {
-        //     stats_file += "_" + loss;
-        // }
-        // if (!rate.isEmpty()) {
-        //     stats_file += "_" + rate;
-        // }
-        // if (!jitter.isEmpty()) {
-        //     stats_file += "_" + jitter;
-        // }
+        //String presenterRecordingName = "./media/record/" + file_name + "-presenter.webm";
+        //File recordingPresenter = getRecording(presenter, presenterRecordingName);
+        //assertTrue(recordingPresenter.exists());
+        //String viewerRecordingName = "./media/record/" + file_name + "-viewer.webm";
+        //File recordingViewer = getRecording(viewer, viewerRecordingName);
+        //assertTrue(recordingViewer.exists())
+        //if (!loss.isEmpty()) {
+        //    stats_file += "_" + loss;
+        //}
+        //if (!rate.isEmpty()) {
+        //    stats_file += "_" + rate;
+        //}
+        //if (!jitter.isEmpty()) {
+        //    stats_file += "_" + jitter;
+        //}
 
         // デフォルトで統計がダウンロードされるディレクトリを指定できないので、名前を変更しつつ移動
-        // moveStatsFile("stats_presenter", dst_dir, stats_file,"_presenter");
-        // moveStatsFile("stats_viewer", dst_dir , stats_file, "_viewer");
+        moveStatsFile("stats_presenter", dst_dir, stats_file,"_presenter");
+        moveStatsFile("stats_viewer", dst_dir , stats_file, "_viewer");
 
     }
 
