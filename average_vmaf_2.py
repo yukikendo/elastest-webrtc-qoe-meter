@@ -22,7 +22,7 @@ plt.xlabel('Packet Loss(%)')
 plt.ylabel('VMAF Score')
 plt.title('VMAF Score vs Packet Loss')
 plt.grid(True)
-plt.yticks([0, 10, 20, 30, 40, 50, 60, 70])  # これを追加
+plt.yticks([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])  # これを追加
 plt.xticks([0, 5, 10, 15, 20, 25, 30, 35, 40, 45])
 plt.savefig(path + "vmaf_graph/vmaf_scores_2.png")
 plt.show()
