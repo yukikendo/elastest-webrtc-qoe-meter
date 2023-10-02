@@ -27,7 +27,8 @@ def MOS_form_VMAF(fps, score):
     
     return mos
 
-path = "/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/score/720_1280/0918/average/"
+path = "/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/score/720_1280/0923/average/"
+#values = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
 values = [0, 15, 30, 45]
 average_vmaf_mos_values = []
 
@@ -61,7 +62,7 @@ for value in values:
 # プロット
 plt.plot(values, average_vmaf_mos_values, marker='o')
 plt.xlabel('Packet Loss(%)')
-plt.ylabel('average MOS from VMAF')
+plt.ylabel('MOS Score from VMAF')
 plt.title('MOS Score vs Packet Loss')
 plt.grid(True)
 plt.savefig(path + "vmaf_graph/average_vmaf_mos.png")

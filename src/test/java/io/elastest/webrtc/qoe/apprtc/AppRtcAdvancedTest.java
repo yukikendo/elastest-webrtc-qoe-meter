@@ -52,7 +52,7 @@ public class AppRtcAdvancedTest extends ElasTestRemoteControlParent {
     static final String SESSION_NAME = randomUUID().toString();
     static final String WEBM_EXT = ".webm";
     static final String IFACE = "eth0";
-    static final int TEST_TIME_SEC = 35;
+    static final int TEST_TIME_SEC = 40;
 
     // The following values are valid: loss, delay, jitter
     static final String TC_TYPE = System.getProperty("tc.type", "");

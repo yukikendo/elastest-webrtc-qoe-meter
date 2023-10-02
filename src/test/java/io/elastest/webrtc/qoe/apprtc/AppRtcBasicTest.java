@@ -23,20 +23,16 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.slf4j.Logger;
 
 import io.elastest.webrtc.qoe.ElasTestRemoteControlParent;
 import io.github.bonigarcia.seljup.Arguments;
 import io.github.bonigarcia.seljup.SeleniumExtension;
-import io.github.bonigarcia.wdm.WebDriverManager;
 
 import java.util.ArrayList;
 
@@ -54,7 +50,7 @@ public class AppRtcBasicTest extends ElasTestRemoteControlParent {
     static final String SESSION_NAME = randomUUID().toString(); 
 
     //network config
-    String loss = "45%";
+    String loss = "30%";
     String rate = "1Mbps";
     String jitter = "";
     //encode bitrate
@@ -160,8 +156,8 @@ public class AppRtcBasicTest extends ElasTestRemoteControlParent {
         //}
 
         // デフォルトで統計がダウンロードされるディレクトリを指定できないので、名前を変更しつつ移動
-        moveStatsFile("stats_presenter", dst_dir, stats_file,"_presenter");
-        moveStatsFile("stats_viewer", dst_dir , stats_file, "_viewer");
+        //moveStatsFile("stats_presenter", dst_dir, stats_file,"_presenter");
+        //moveStatsFile("stats_viewer", dst_dir , stats_file, "_viewer");
 
     }
 

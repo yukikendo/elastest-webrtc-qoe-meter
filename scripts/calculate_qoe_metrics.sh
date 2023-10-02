@@ -12,7 +12,7 @@ FPS=24
 PESQ_AUDIO_SAMPLE_RATE=16000
 VIDEO_BITRATE=3M
 JPG_FOLDER=jpg
-FFMPEG_LOG="-loglevel debug"
+FFMPEG_LOG="-loglevel error"
 P_SUFFIX="-p.jpg"
 V_SUFFIX="-v.jpg"
 VIDEO_LENGTH_SEC=30
@@ -351,7 +351,7 @@ align_ocr() {
    rm -f $cut_folder/*.jpg
 
    #ffmpeg $FFMPEG_LOG -i $video_ocr -qscale:v 2 $JPG_FOLDER/%04d.jpg
-   ffmpeg $FFMPEG_LOG -i $video_ocr -q:v 2 $JPG_FOLDER/%04d.jpg
+   ffmpeg $FFMPEG_LOG -i $video_ocr -qscale:v 2 $JPG_FOLDER/%04d.jpg
 
    next=$(($VIDEO_LENGTH_SEC * $FPS))
    skipped=0

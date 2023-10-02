@@ -191,8 +191,8 @@ public class ElasTestRemoteControlParent {
     }
 
     public void moveStatsFile(String src_file, String dst_dir, String filename, String prefix) {
-        Path sourcePath = Paths.get("/home/tsukumo-ubuntu/Downloads/" + src_file + ".json");
-        Path destinationPath = Paths.get("/home/tsukumo-ubuntu/workspace/elastest-webrtc-qoe-meter/stats/" + dst_dir + "/"+ filename + prefix + "_1.json");
+        Path sourcePath = Paths.get("/home/ohzahata-qoe/Downloads" + src_file + ".json");
+        Path destinationPath = Paths.get("/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/stats" + dst_dir + "/"+ filename + prefix + "_1.json");
         // try{
         //     Files.move(p1, p2, StandardCopyOption.REPLACE_EXISTING);
         // }catch(IOException e){

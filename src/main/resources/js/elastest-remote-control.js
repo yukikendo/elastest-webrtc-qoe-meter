@@ -22,7 +22,7 @@ ElasTestRemoteControl.prototype.startRecording = function(stream) {
 	var options = {
 		type : "video",
 		mimeType : "video/webm",
-		// frameRate : 60,
+		frameRate : 24,
 		// bitsPerSecond: 9000000,
 		numberOfAudioChannels : 2,
 		sampleRate : 48000,
@@ -103,7 +103,7 @@ ElasTestRemoteControl.prototype.getStats = function (name) {
 				})
 				stats_report[++num] = stats_all;
 				console.info(stats_report)
-				if (num == 21) {
+				if (num == 36) {
 					//download json
 					clearInterval(timer);
 					console.info("num = " + num);
