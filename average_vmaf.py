@@ -1,7 +1,7 @@
 import json
 import matplotlib.pyplot as plt
 
-path = "/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/score/480_640/0925/average/"
+path = "/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/score/480_640/1006/average/"
 values = [0, 15, 30, 45]
 vmaf_scores_values = []
 
