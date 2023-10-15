@@ -22,7 +22,7 @@ ElasTestRemoteControl.prototype.startRecording = function(stream) {
 	var options = {
 		type : "video",
 		mimeType : "video/webm",
-		frameRate : 24,
+		//frameRate : 30,
 		// bitsPerSecond: 9000000,
 		numberOfAudioChannels : 2,
 		sampleRate : 48000,
@@ -94,7 +94,7 @@ ElasTestRemoteControl.prototype.getStats = function (name) {
 		const timer = setInterval(() => {
 			let stats_all = {}
 			// producerが動画本体を流している間の統計
-			if (num >= 5 && num <= 35) {
+			if (num >= 10 && num <= 20) {
 				peerConnections[0].getStats(null).then((stats) => {
 					stats.forEach((report) => {
 						let type = report.type;
@@ -103,7 +103,7 @@ ElasTestRemoteControl.prototype.getStats = function (name) {
 				})
 				stats_report[++num] = stats_all;
 				console.info(stats_report)
-				if (num == 36) {
+				if (num == 21) {
 					//download json
 					clearInterval(timer);
 					console.info("num = " + num);

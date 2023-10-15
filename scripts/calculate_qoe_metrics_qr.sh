@@ -25,6 +25,7 @@ ONLY_VMAF=false
 USAGE="Usage: `basename $0` [-p=prefix] [-w=width] [-h=height] [--calculate_audio_qoe] [--no_cleanup] [--clean] [-vr=video_ref] [-ar=audio_ref] [--align_ocr] [--use_default_ref] [--only_vmaf]"
 #VMAF_PATH=../../vmaf/python
 VMAF_PATH=../../vmaf/python/vmaf/script
+LSTM_PATH=/home/ohzahata-qoe/Documents/GitHub/Video_Call_MOS/lstm/bin/activate
 
 ##################################################################################
 # FUNCTIONS
@@ -47,6 +48,9 @@ init() {
    YUV_VIEWER=$PREFIX-v.yuv
    WAV_PRESENTER=$PREFIX-p.wav
    WAV_VIEWER=$PREFIX-v.wav
+   MP4_VIEWER=$PREFIX-v.mp4
+   MP4_PRESENTER=$PREFIX-p.mp4
+   REFERENCE=$PREFIX.mp4
 }
 
 cleanup() {
@@ -409,6 +413,21 @@ align_ocr() {
    fi
 }
 
+align_qr_prediction() {
+   deg_video=$1
+   ref_video=$2
+   deg_video_mp4=$3
+   ref_video_mp4=$4
+
+   echo "Aligning $deg_video based on QR codes and prediction"
+   ffmpeg -i $deg_video $deg_video_mp4
+   ffmpeg -i $ref_video $ref_video_mp4
+   source $LSTM_PATH
+   python /home/ohzahata-qoe/Documents/GitHub/Video_Call_MOS/run_video_call_mos.py --deg_video $deg_video_mp4 --ref_video $ref_video_mp4 --results_dir /home/ohzahata-qoe/Documents/GitHub/Video_Call_MOS/results --tmp_dir /home/ohzahata-qoe/Documents/GitHub/Video_Call_MOS/tmp
+   deactivate
+}
+
+
 ##################################################################################
 # PARSE ARGUMENTS
 ##################################################################################
@@ -541,81 +560,86 @@ if $CALCULATE_AUDIO_QOE &&  [ ! -f $WAV_VIEWER ]; then
    extract_wav $CUT_VIEWER $WAV_VIEWER
 fi
 
-
 #######################################
 # 6. Alignment based on OCR recognition
 #######################################
-if $ALIGN_OCR && [ -z "$VIDEO_REF" ]; then
-   if [ ! -f $OCR_PRESENTER ]; then
-      align_ocr $CUT_PRESENTER $OCR_PRESENTER $WAV_PRESENTER
-   fi
-   CUT_PRESENTER=$OCR_PRESENTER
-fi
-if $ALIGN_OCR; then
-   if [ ! -f $OCR_VIEWER ]; then
-      align_ocr $CUT_VIEWER $OCR_VIEWER $WAV_VIEWER
-   fi
-   CUT_VIEWER=$OCR_VIEWER
-fi
+#if $ALIGN_OCR && [ -z "$VIDEO_REF" ]; then
+#   if [ ! -f $OCR_PRESENTER ]; then
+#      align_ocr $CUT_PRESENTER $OCR_PRESENTER $WAV_PRESENTER
+#   fi
+#   CUT_PRESENTER=$OCR_PRESENTER
+#fi
+#if $ALIGN_OCR; then
+#   if [ ! -f $OCR_VIEWER ]; then
+#      align_ocr $CUT_VIEWER $OCR_VIEWER $WAV_VIEWER
+#   fi
+#   CUT_VIEWER=$OCR_VIEWER
+#fi
+
+#############################################
+# 6. Alignment based on QR codes & prediction
+#############################################
+align_qr_prediction $CUT_VIEWER $CUT_PRESENTER $MP4_VIEWER $MP4_PRESENTER
+
 
 #########################
 # 7. Convert video to YUV
 #########################
-if [ -z "$VIDEO_REF" ] && [ ! -f $YUV_PRESENTER ]; then
-   convert_yuv $CUT_PRESENTER $YUV_PRESENTER
-fi
-if [ ! -f $YUV_VIEWER ]; then
-   convert_yuv $CUT_VIEWER $YUV_VIEWER
-fi
+#if [ -z "$VIDEO_REF" ] && [ ! -f $YUV_PRESENTER ]; then
+#   convert_yuv $CUT_PRESENTER $YUV_PRESENTER
+#fi
+#if [ ! -f $YUV_VIEWER ]; then
+#   convert_yuv $CUT_VIEWER $YUV_VIEWER
+#fi
 
 ######################
 # 8. Run VMAF and VQMT
 ######################
-REF=$YUV_PRESENTER
-if [ ! -z "$VIDEO_REF" ]; then
-    REF=$VIDEO_REF
-fi
-
-echo "Calculating VMAF"
-#$VMAF_PATH/run_vmaf yuv420p $WIDTH $HEIGHT $PWD/$REF $PWD/$YUV_VIEWER --out-fmt json > $PWD/${PREFIX}_vmaf.json && cat $PWD/${PREFIX}_vmaf.json | jq '.frames[].VMAF_score' > $PWD/${PREFIX}_vmaf.csv
-python3 $VMAF_PATH/run_vmaf.py yuv420p $WIDTH $HEIGHT $PWD/$REF $PWD/$YUV_VIEWER --out-fmt json > $PWD/../score/${PREFIX}_vmaf_1.json
-
-if ! $ONLY_VMAF; then
-    echo "Calculating VIFp, SSIM, MS-SSIM, PSNR, PSNR-HVS, and PSNR-HVS-M"
-    $VQMT_PATH/vqmt $PWD/$REF $PWD/$YUV_VIEWER $HEIGHT $WIDTH 1500 1 $PREFIX PSNR SSIM VIFP MSSSIM PSNRHVS PSNRHVSM >> /dev/null 2>&1
-fi
+#REF=$YUV_PRESENTER
+#if [ ! -z "$VIDEO_REF" ]; then
+#    REF=$VIDEO_REF
+#fi
+#
+#echo "Calculating VMAF"
+##$VMAF_PATH/run_vmaf yuv420p $WIDTH $HEIGHT $PWD/$REF $PWD/$YUV_VIEWER --out-fmt json > $PWD/${PREFIX}_vmaf.json && cat $PWD/${PREFIX}_vmaf.json | jq '.frames[].VMAF_score' > $PWD/${PREFIX}_vmaf.csv
+#python3 $VMAF_PATH/run_vmaf.py yuv420p $WIDTH $HEIGHT $PWD/$REF $PWD/$YUV_VIEWER --out-fmt json > $PWD/../score/${PREFIX}_vmaf_1.json
+#
+#if ! $ONLY_VMAF; then
+#    echo "Calculating VIFp, SSIM, MS-SSIM, PSNR, PSNR-HVS, and PSNR-HVS-M"
+#    $VQMT_PATH/vqmt $PWD/$REF $PWD/$YUV_VIEWER $HEIGHT $WIDTH 1500 1 $PREFIX PSNR SSIM VIFP MSSSIM PSNRHVS PSNRHVSM >> /dev/null 2>&1
+#fi
 
 ########################
 # 9. Run PESQ and ViSQOL
 ########################
-if $CALCULATE_AUDIO_QOE && ! $ONLY_VMAF; then
-    ORIG_PWD=$PWD
-
-    REF_PESQ=resampled_$WAV_PRESENTER
-    REF_ViSQOL=$WAV_PRESENTER
-    if [ ! -z "$AUDIO_REF" ]; then
-        REF_PESQ=resampled_ref.wav
-        REF_ViSQOL=$AUDIO_REF
-    fi
-
-    if [ -z "$PESQ_PATH" ]; then
-        echo "You need to provide the path to PESQ binaries (https://github.com/dennisguse/ITU-T_pesq) in the environmental variable PESQ_PATH"
-    else
-        echo "Calculating PESQ"
-        cd $PESQ_PATH
-        ./pesq +$PESQ_AUDIO_SAMPLE_RATE $ORIG_PWD/$REF_PESQ $ORIG_PWD/resampled_$WAV_VIEWER | tail -n 1 > $ORIG_PWD/${PREFIX}_pesq.txt
-    fi
-
-    if [ -z "$VISQOL_PATH" ]; then
-        echo "You need to provide the path to ViSQOL binaries (https://sites.google.com/a/tcd.ie/sigmedia/) in the environmental variable VISQOL_PATH"
-    else
-        echo "Calculating ViSQOL"
-        cd $VISQOL_PATH
-        ./bazel-bin/visqol --reference_file $ORIG_PWD/$REF_ViSQOL --degraded_file $ORIG_PWD/$WAV_VIEWER --verbose | grep MOS-LQO > $ORIG_PWD/${PREFIX}_visqol.txt
-    fi
-
-    cd $ORIG_PWD
-fi
+#if $CALCULATE_AUDIO_QOE && ! $ONLY_VMAF; then
+#    ORIG_PWD=$PWD
+#
+#    REF_PESQ=resampled_$WAV_PRESENTER
+#    REF_ViSQOL=$WAV_PRESENTER
+#    if [ ! -z "$AUDIO_REF" ]; then
+#        REF_PESQ=resampled_ref.wav
+#        REF_ViSQOL=$AUDIO_REF
+#    fi
+#
+#    if [ -z "$PESQ_PATH" ]; then
+#        echo "You need to provide the path to PESQ binaries (https://github.com/dennisguse/ITU-T_pesq) in the environmental variable PESQ_PATH"
+#    else
+#        echo "Calculating PESQ"
+#        cd $PESQ_PATH
+#        ./pesq +$PESQ_AUDIO_SAMPLE_RATE $ORIG_PWD/$REF_PESQ $ORIG_PWD/resampled_$WAV_VIEWER | tail -n 1 > $ORIG_PWD/${PREFIX}_pesq.txt
+#    fi
+#
+#    if [ -z "$VISQOL_PATH" ]; then
+#        echo "You need to provide the path to ViSQOL binaries (https://sites.google.com/a/tcd.ie/sigmedia/) in the environmental variable VISQOL_PATH"
+#    else
+#        echo "Calculating ViSQOL"
+#        cd $VISQOL_PATH
+#        ./bazel-bin/visqol --reference_file $ORIG_PWD/$REF_ViSQOL --degraded_file $ORIG_PWD/$WAV_VIEWER --verbose | grep MOS-LQO > $ORIG_PWD/${PREFIX}_visqol.txt
+#    fi
+#
+#    cd $ORIG_PWD
+#fi
 
 ########################
 # 10. Cleanup and finish

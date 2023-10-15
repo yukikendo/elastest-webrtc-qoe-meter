@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ##################################################################################
 # DEFAULT VALUES
@@ -49,7 +49,7 @@ for i in "$@"; do
       VIDEO_SAMPLE_URL=https://ia800307.us.archive.org/28/items/BigBuckBunnyFULLHD60FPS/Big%20Buck%20Bunny%20-%20FULL%20HD%2060FPS.mp4
       WIDTH=1920
       HEIGHT=1080
-      FPS=60
+      FPS=30
       shift
       ;;
       --generate_default_ref)
@@ -106,8 +106,16 @@ ffmpeg $FFMPEG_LOG -y -i "$VIDEO_SAMPLE_NAME" -ss 00:00:00 -t $VIDEO_DURATION -v
 #########################
 # 3. Overlay frame number
 #########################
-echo "Overlaying frame number in the video content"
-ffmpeg $FFMPEG_LOG -y -i test-no-frame-number.mp4 -vf drawtext="fontfile=$FONT:text='\   %{frame_num}  \ ':start_number=1:x=(w-tw)/2:y=h-(2*lh)+15:fontcolor=black:fontsize=40:box=1:boxcolor=white:boxborderw=10" test-no-padding.mp4
+#echo "Overlaying frame number in the video content"
+#ffmpeg $FFMPEG_LOG -y -i test-no-frame-number.mp4 -vf drawtext="fontfile=$FONT:text='\   %{frame_num}  \ ':start_number=1:x=(w-tw)/2:y=h-(2*lh)+15:fontcolor=black:fontsize=40:box=1:boxcolor=white:boxborderw=10" test-no-padding.mp4
+
+#########################
+# 3. Drawing QR codes
+#########################
+echo "Drawing QR code"
+source /home/ohzahata-qoe/Documents/GitHub/Video_Call_MOS/lstm/bin/activate
+python3 /home/ohzahata-qoe/Documents/GitHub/Video_Call_MOS/run_draw_qr_codes_webrtc.py
+deactivate
 
 #################################################
 # 4. Create padding video based on a test pattern

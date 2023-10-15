@@ -50,7 +50,7 @@ public class AppRtcBasicTest extends ElasTestRemoteControlParent {
     static final String SESSION_NAME = randomUUID().toString(); 
 
     //network config
-    String loss = "45%";
+    String loss = "15%";
     String rate = "1Mbps";
     String jitter = "";
     //encode bitrate
