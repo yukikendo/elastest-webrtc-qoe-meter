@@ -27,7 +27,7 @@ def MOS_form_VMAF(fps, score):
     
     return mos
 
-path = "/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/score/720_1280/0923/average/"
+path = "/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/score/480_640/1011/average/"
 #values = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
 values = [0, 15, 30, 45]
 average_vmaf_mos_values = []
@@ -35,7 +35,7 @@ average_vmaf_mos_values = []
 fps = 24
 
 for value in values:
-    f = f"720_1280_{value}"
+    f = f"480_640_{value}"
     source = path + f + '.json'
     print(f'file : {source}')
     with open(source, 'r') as file:

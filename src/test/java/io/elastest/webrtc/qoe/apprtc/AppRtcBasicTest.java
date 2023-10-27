@@ -46,12 +46,12 @@ public class AppRtcBasicTest extends ElasTestRemoteControlParent {
 
     static final String SUT_URL = "https://localhost/?wshpp=localhost:8089&wstls=true";
 
-    static final int TEST_TIME_SEC = 40; //動画の長さとパディング2つの長さの合計
+    static final int TEST_TIME_SEC = 20; //動画の長さとパディング2つの長さの合計
     static final String SESSION_NAME = randomUUID().toString(); 
 
     //network config
-    String loss = "15%";
-    String rate = "1Mbps";
+    String loss = "0%";
+    String rate = "0.5Mbps";
     String jitter = "";
     //encode bitrate
     String bitrate = "9000000";

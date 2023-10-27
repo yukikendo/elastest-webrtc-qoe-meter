@@ -29,8 +29,8 @@ def MOS_form_VMAF(fps, score):
     return mos
 
 
-path = "/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/score/720_1280/0918/45/03/"
-f = "720_1280_45"
+path = "/home/ohzahata-qoe/Documents/GitHub/elastest-webrtc-qoe-meter/score/480_640/1011/average/"
+f = "480_640_45"
 
 # ファイル読み込み
 source = path + f + '.json'

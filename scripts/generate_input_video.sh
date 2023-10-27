@@ -7,7 +7,7 @@
 VIDEO_SAMPLE_URL=https://archive.org/download/e-dv548_lwe08_christa_casebeer_003.ogg/e-dv548_lwe08_christa_casebeer_003.mp4
 WIDTH=640
 HEIGHT=480
-VIDEO_DURATION=00:00:30
+VIDEO_DURATION=00:00:10
 PADDING_DURATION_SEC=5
 FPS=24
 AUDIO_SAMPLE_RATE_HZ=48000
@@ -101,7 +101,7 @@ fi
 # 2. Cut original video
 #######################
 echo "Cutting original video (duration $VIDEO_DURATION)"
-ffmpeg $FFMPEG_LOG -y -i "$VIDEO_SAMPLE_NAME" -ss 00:00:00 -t $VIDEO_DURATION -vf scale="$WIDTH:$HEIGHT",setsar=1:1 -r $FPS test-no-frame-number.mp4
+ffmpeg $FFMPEG_LOG -y -i "$VIDEO_SAMPLE_NAME" -ss 00:00:05 -t $VIDEO_DURATION -vf scale="$WIDTH:$HEIGHT",setsar=1:1 -r $FPS test-no-frame-number.mp4
 
 #########################
 # 3. Overlay frame number
